@@ -13,6 +13,7 @@
 import UIKit
 import CoreData
 
+// Maybe it will be nessessary later
 class CoreDataError: Error {
     
     fileprivate let noObjectMessageCase = "Object for"
@@ -20,6 +21,9 @@ class CoreDataError: Error {
     enum CoreDataErrorCase {
         case noObject(String)
         case noEntity(String)
+        case savingFalure
+        case savingFalureWhileDeleting
+        case dataBaseIsNotAvalible
     }
     
     let message: String
@@ -33,41 +37,74 @@ class CoreDataError: Error {
         case .noEntity(let entityName):
             message = "Entity for key: \(entityName) did't found"
             code = 2
+        case .savingFalure:
+            message = "Entity can't be saved"
+            code = 3
+        case .savingFalureWhileDeleting:
+            message = "Deleting was break in process. Reload or reinstall app"
+            code = 4
+        case .dataBaseIsNotAvalible:
+            message = "Data Base can't be downloaded. DB will be clean..."
+            code = 5
+        
         }
     }
 }
+// -
 
 class TableViewControllerWorker {
     
     lazy var context: NSManagedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    func getSavedTasks(completion: (Bool, [Task]?, Error?) -> ()) {
+    func getSavedTasks(completion: (Bool, [Task]?, Error?, CoreDataError?) -> ()) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: false) // posibly here is we need use some like dateOfCreating...
+        fetchRequest.sortDescriptors = [sortDescriptor]
         
+        // get
         do {
             let tasks = try context.fetch(fetchRequest)
-            completion(true, tasks, nil)
+            completion(true, tasks, nil, nil)
         } catch let error as NSError {
-            completion(false, nil, error)
+            completion(false, nil, error, CoreDataError(errorCase: .dataBaseIsNotAvalible))
         }
     }
     
-    func addTask(withTitle title: String, completion: (Bool, Task?, Error?) -> ()) {
+    func addTask(withTitle title: String, completion: (Bool, Task?, Error?, CoreDataError?) -> ()) {
         let entityName = "Task"
         guard let entity = NSEntityDescription.entity(forEntityName: "Task", in: context) else {
-            completion(false, nil, CoreDataError(errorCase: .noEntity(entityName)))
+            completion(false, nil, nil, CoreDataError(errorCase: .noEntity(entityName)))
             return
         }
         
         let taskObject = Task(entity: entity, insertInto: context)
         taskObject.title = title
         
+        // save
         do {
             try context.save()
-            completion(true, taskObject, nil)
+            completion(true, taskObject, nil, nil)
         } catch let error as NSError {
-            completion(false, nil, error)
+            completion(false, nil, error, CoreDataError(errorCase: .savingFalure))
+        }
+        //
+    }
+    
+    func deleteAll(completion: (Bool, Error?, CoreDataError?) -> ()) {
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        if let objects = try? context.fetch(fetchRequest) {
+            for object in objects {
+                context.delete(object)
+            }
         }
         
+        // save
+        do {
+            try context.save()
+            completion(true, nil, nil)
+        } catch let error as NSError {
+            completion(false, error, CoreDataError(errorCase: .savingFalureWhileDeleting))
+        }
+        //
     }
 }

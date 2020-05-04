@@ -8,12 +8,6 @@
 
 import UIKit
 
-extension UITableViewCell {
-    class func reuseIdentifier() -> String {
-        return self.description()
-    }
-}
-
 class TaskTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {

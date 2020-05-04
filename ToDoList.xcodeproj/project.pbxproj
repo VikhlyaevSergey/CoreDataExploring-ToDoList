@@ -22,6 +22,8 @@
 		B7566A84245EDE40008C68E7 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7566A83245EDE40008C68E7 /* TableViewController.xib */; };
 		B7566A88245F0278008C68E7 /* TaskTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7566A86245F0278008C68E7 /* TaskTableViewCell.swift */; };
 		B7566A89245F0278008C68E7 /* TaskTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7566A87245F0278008C68E7 /* TaskTableViewCell.xib */; };
+		B7F4FC8D246048A60038A04C /* RemoveAllTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F4FC8B246048A60038A04C /* RemoveAllTableViewCell.swift */; };
+		B7F4FC8E246048A60038A04C /* RemoveAllTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7F4FC8C246048A60038A04C /* RemoveAllTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +44,8 @@
 		B7566A83245EDE40008C68E7 /* TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TableViewController.xib; sourceTree = "<group>"; };
 		B7566A86245F0278008C68E7 /* TaskTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskTableViewCell.swift; sourceTree = "<group>"; };
 		B7566A87245F0278008C68E7 /* TaskTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TaskTableViewCell.xib; sourceTree = "<group>"; };
+		B7F4FC8B246048A60038A04C /* RemoveAllTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveAllTableViewCell.swift; sourceTree = "<group>"; };
+		B7F4FC8C246048A60038A04C /* RemoveAllTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RemoveAllTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +98,7 @@
 				B7566A70245ED9DF008C68E7 /* TableViewControllerWorker.swift */,
 				B7566A72245ED9DF008C68E7 /* TableViewControllerRouter.swift */,
 				B7566A83245EDE40008C68E7 /* TableViewController.xib */,
-				B7566A85245F0249008C68E7 /* cell */,
+				B7566A85245F0249008C68E7 /* cells */,
 			);
 			path = TableViewController;
 			sourceTree = "<group>";
@@ -117,13 +121,15 @@
 			path = Base;
 			sourceTree = "<group>";
 		};
-		B7566A85245F0249008C68E7 /* cell */ = {
+		B7566A85245F0249008C68E7 /* cells */ = {
 			isa = PBXGroup;
 			children = (
 				B7566A86245F0278008C68E7 /* TaskTableViewCell.swift */,
 				B7566A87245F0278008C68E7 /* TaskTableViewCell.xib */,
+				B7F4FC8B246048A60038A04C /* RemoveAllTableViewCell.swift */,
+				B7F4FC8C246048A60038A04C /* RemoveAllTableViewCell.xib */,
 			);
-			path = cell;
+			path = cells;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -188,6 +194,7 @@
 				B7566A84245EDE40008C68E7 /* TableViewController.xib in Resources */,
 				B7566A65245ED86A008C68E7 /* LaunchScreen.storyboard in Resources */,
 				B7566A62245ED86A008C68E7 /* Assets.xcassets in Resources */,
+				B7F4FC8E246048A60038A04C /* RemoveAllTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,6 +206,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B7566A56245ED867008C68E7 /* AppDelegate.swift in Sources */,
+				B7F4FC8D246048A60038A04C /* RemoveAllTableViewCell.swift in Sources */,
 				B7566A7B245ED9DF008C68E7 /* TableViewController.swift in Sources */,
 				B7566A88245F0278008C68E7 /* TaskTableViewCell.swift in Sources */,
 				B7566A58245ED867008C68E7 /* SceneDelegate.swift in Sources */,
