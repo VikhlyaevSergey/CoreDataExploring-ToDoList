@@ -1,0 +1,2 @@
+
+## Exploring of CoreData Framework
