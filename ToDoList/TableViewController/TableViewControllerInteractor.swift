@@ -35,12 +35,23 @@ class TableViewControllerInteractor: NSObject, TableViewControllerBusinessLogic,
     }
     
     func prepareDataAndReturnCountOfInsertRows() -> Int {
-        coreDataWorker?.getSavedTasks(completion: { [weak self] (success, tasks, error) in
+        coreDataWorker?.getSavedTasks(completion: { [weak self] (success, tasks, error, coreDataError) in
             if success {
                 guard let tasks = tasks else { return }
                 self?.tasks = tasks
             } else {
-            
+                guard let coreDataError = coreDataError else { return }
+                self?.presenter?.presentError(coreDataError)
+                self?.coreDataWorker?.deleteAll(completion: { (success, error, coreDataError) in
+                    if success {
+                        self?.presenter?.dataBaseWasDeleted(cellsCount: self?.tasks.count ?? 0, removingBlock: {
+                            self?.tasks = []
+                        })
+                    } else {
+                        guard let coreDataError = coreDataError else { return }
+                        self?.presenter?.presentError(coreDataError)
+                    }
+                })
             }
         })
                 
@@ -50,31 +61,48 @@ class TableViewControllerInteractor: NSObject, TableViewControllerBusinessLogic,
     func tableViewChangeBlockAddTask(withTitle title: String) -> ()->() {
         return { [weak self] in
             
-            self?.coreDataWorker?.addTask(withTitle: title, completion: { [weak self] (success, task, error) in
+            self?.coreDataWorker?.addTask(withTitle: title, completion: { [weak self] (success, task, error, coreDataError) in
                 if success {
                     guard let task = task else { return }
                     self?.tasks.insert(task, at: 0)
                 } else {
-                    
+                    guard let coreDataError = coreDataError else { return }
+                    self?.presenter?.presentError(coreDataError)
                 }
             })
-            
-            
         }
     }
 }
 
-
 extension TableViewControllerInteractor: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
+        return tasks.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TaskTableViewCell.reuseIdentifier(), for: indexPath) as! TaskTableViewCell
-        
-        cell.configure(task: tasks[indexPath.row])
-        
-        return cell
+        if indexPath.row != tasks.count {
+            let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskTableViewCell.self), for: indexPath) as! TaskTableViewCell
+            
+            cell.configure(task: tasks[indexPath.row])
+            cell.selectionStyle = .none
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RemoveAllTableViewCell.self), for: indexPath) as! RemoveAllTableViewCell
+            
+            cell.onDeleteBlock = { [weak self] in
+                self?.coreDataWorker?.deleteAll(completion: { (success, error, coreDataError) in
+                    if success {
+                        self?.presenter?.dataBaseWasDeleted(cellsCount: self?.tasks.count ?? 0, removingBlock: {
+                            self?.tasks = []
+                        })
+                    } else {
+                        guard let coreDataError = coreDataError else { return }
+                        self?.presenter?.presentError(coreDataError)
+                    }
+                })
+            }
+            
+            return cell
+        }
     }
 }

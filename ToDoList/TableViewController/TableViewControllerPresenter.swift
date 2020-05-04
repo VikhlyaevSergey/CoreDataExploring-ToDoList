@@ -13,6 +13,9 @@
 import UIKit
 
 protocol TableViewControllerPresentationLogic: class {
+    func dataBaseWasDeleted(cellsCount: Int, removingBlock: ()->())
+    
+    func presentError(_ error: Error)
 }
 
 protocol TableViewControllerViewControllerOutput {
@@ -56,6 +59,29 @@ extension TableViewControllerPresenter: TableViewControllerViewControllerOutput 
         tableView?.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         tableView?.endUpdates()
     }
+    
+    func dataBaseWasDeleted(cellsCount: Int, removingBlock: ()->()) {
+        tableView?.beginUpdates()
+        var indexPaths: [IndexPath] = []
+        for row in 0 ..< cellsCount {
+            indexPaths.append(IndexPath(row: row, section: 0))
+        }
+        removingBlock()
+        
+        tableView?.deleteRows(at: indexPaths, with: .automatic)
+        tableView?.endUpdates()
+    }
+    
+    func presentError(_ error: Error) {
+        viewController?.showAlertWithError(error)
+    }
 }
 
-extension TableViewControllerPresenter: UITableViewDelegate {}
+extension TableViewControllerPresenter: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if tableView.cellForRow(at: indexPath) is RemoveAllTableViewCell {
+            (tableView.cellForRow(at: indexPath) as! RemoveAllTableViewCell).onDeleteBlock()
+        }
+    }
+}

@@ -13,7 +13,7 @@
 import UIKit
 
 protocol TableViewControllerDisplayLogic: class {
-    // func tableViewChangesDone()
+    func showAlertWithError(_ error: Error)
 }
 
 class TableViewController: UITableViewController {
@@ -52,7 +52,14 @@ extension TableViewController {
     }
     
     private func registerXibs() {
-        tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: TaskTableViewCell.reuseIdentifier())
+        let xibNames = [
+            String(describing: RemoveAllTableViewCell.self),
+            String(describing: TaskTableViewCell.self)
+        ]
+        
+        xibNames.forEach { (name) in
+            tableView.register(UINib(nibName: name, bundle: nil), forCellReuseIdentifier: name)
+        }
     }
     
     private func setupBarButtons() {
@@ -67,7 +74,7 @@ extension TableViewController {
         
         let save = UIAlertAction(title: "Save", style: .default) { [weak self] (action) in
             let tf = alertController.textFields?.first
-            if let newTaskTitle = tf?.text {
+            if let newTaskTitle = tf?.text, newTaskTitle != "" {
                 self?.presenter.saveTask(withTitle: newTaskTitle)
             }
         }
@@ -82,4 +89,23 @@ extension TableViewController {
     }
 }
 
-extension TableViewController: TableViewControllerDisplayLogic {}
+extension TableViewController: TableViewControllerDisplayLogic {
+    func showAlertWithError(_ error: Error) {
+        var alertTitle = "Error"
+        var alertMessage = ""
+                
+        if error is CoreDataError {
+            let coreDataError = error as! CoreDataError
+            alertTitle += " \(coreDataError.code)"
+            alertMessage = coreDataError.message
+        } else {
+            alertMessage = error.localizedDescription
+        }
+        
+        let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alertController.addAction(ok)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+}
