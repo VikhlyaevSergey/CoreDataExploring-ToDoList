@@ -6,3 +6,4 @@
     2) Import of CoreData Framework
         2.1 Setup of the main actions (addition, saving, getting, removing)
         2.2 Setup of TableView appearing for results
+    3*) VIPER EVERYWHERE!!!
