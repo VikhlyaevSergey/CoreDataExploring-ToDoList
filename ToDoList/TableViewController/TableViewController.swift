@@ -22,9 +22,15 @@ class TableViewController: UITableViewController {
     private var addBarButtonItem: UIBarButtonItem!
     
     // MARK: View lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter?.viewIsReady()
     }
     
     // MARK: Action
@@ -61,8 +67,8 @@ extension TableViewController {
         
         let save = UIAlertAction(title: "Save", style: .default) { [weak self] (action) in
             let tf = alertController.textFields?.first
-            if let text = tf?.text {
-                self?.presenter.addTask(text)
+            if let newTaskTitle = tf?.text {
+                self?.presenter.saveTask(withTitle: newTaskTitle)
             }
         }
         

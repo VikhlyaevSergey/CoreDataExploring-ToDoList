@@ -27,8 +27,8 @@ class TaskTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func configure(task: String) {
-        self.textLabel?.text = task
+    func configure(task: Task) {
+        self.textLabel?.text = task.title
     }
     
 }

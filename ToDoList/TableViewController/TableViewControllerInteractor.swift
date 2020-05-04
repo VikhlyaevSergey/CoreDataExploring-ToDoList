@@ -13,24 +13,53 @@
 import UIKit
 
 protocol TableViewControllerBusinessLogic {
-    func tableViewChangeBlockAddTask(_ task: String) -> ()->()
+    func prepareDataAndReturnCountOfInsertRows() -> Int // probably hard
+    func tableViewChangeBlockAddTask(withTitle title: String) -> ()->()
 }
 
 protocol TableViewControllerDataStore {
-    var tasks: [String] { get set }
+    var tasks: [Task] { get set }
 }
 
 class TableViewControllerInteractor: NSObject, TableViewControllerBusinessLogic, TableViewControllerDataStore {
-    weak var presenter: TableViewControllerPresentationLogic!
-    var worker: TableViewControllerWorker?
     
-    var tasks: [String] = []
+    weak var presenter: TableViewControllerPresentationLogic!
+    var coreDataWorker: TableViewControllerWorker?
+    
+    var tasks: [Task] = []
     
     // MARK: Do something
     
-    func tableViewChangeBlockAddTask(_ task: String) -> ()->() {
+    override init() {
+        coreDataWorker = TableViewControllerWorker()
+    }
+    
+    func prepareDataAndReturnCountOfInsertRows() -> Int {
+        coreDataWorker?.getSavedTasks(completion: { [weak self] (success, tasks, error) in
+            if success {
+                guard let tasks = tasks else { return }
+                self?.tasks = tasks
+            } else {
+            
+            }
+        })
+                
+        return tasks.count
+    }
+    
+    func tableViewChangeBlockAddTask(withTitle title: String) -> ()->() {
         return { [weak self] in
-            self?.tasks.insert(task, at: 0)
+            
+            self?.coreDataWorker?.addTask(withTitle: title, completion: { [weak self] (success, task, error) in
+                if success {
+                    guard let task = task else { return }
+                    self?.tasks.insert(task, at: 0)
+                } else {
+                    
+                }
+            })
+            
+            
         }
     }
 }

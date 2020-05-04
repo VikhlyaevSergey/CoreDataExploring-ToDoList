@@ -11,8 +11,63 @@
 //
 
 import UIKit
+import CoreData
+
+class CoreDataError: Error {
+    
+    fileprivate let noObjectMessageCase = "Object for"
+    
+    enum CoreDataErrorCase {
+        case noObject(String)
+        case noEntity(String)
+    }
+    
+    let message: String
+    let code: Int
+    
+    init(errorCase: CoreDataErrorCase) {
+        switch errorCase  {
+        case .noObject(let objectKey):
+            message = "Object with class: \(objectKey) can't be fetched from DataBase"
+            code = 1
+        case .noEntity(let entityName):
+            message = "Entity for key: \(entityName) did't found"
+            code = 2
+        }
+    }
+}
 
 class TableViewControllerWorker {
-    func doSomeWork() {
+    
+    lazy var context: NSManagedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    func getSavedTasks(completion: (Bool, [Task]?, Error?) -> ()) {
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        
+        do {
+            let tasks = try context.fetch(fetchRequest)
+            completion(true, tasks, nil)
+        } catch let error as NSError {
+            completion(false, nil, error)
+        }
+    }
+    
+    func addTask(withTitle title: String, completion: (Bool, Task?, Error?) -> ()) {
+        let entityName = "Task"
+        guard let entity = NSEntityDescription.entity(forEntityName: "Task", in: context) else {
+            completion(false, nil, CoreDataError(errorCase: .noEntity(entityName)))
+            return
+        }
+        
+        let taskObject = Task(entity: entity, insertInto: context)
+        taskObject.title = title
+        
+        do {
+            try context.save()
+            completion(true, taskObject, nil)
+        } catch let error as NSError {
+            completion(false, nil, error)
+        }
+        
     }
 }

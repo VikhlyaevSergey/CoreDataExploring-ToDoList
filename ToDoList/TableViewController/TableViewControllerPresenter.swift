@@ -16,7 +16,8 @@ protocol TableViewControllerPresentationLogic: class {
 }
 
 protocol TableViewControllerViewControllerOutput {
-    func addTask(_ task: String)
+    func viewIsReady()
+    func saveTask(withTitle title: String)
 }
 
 class TableViewControllerPresenter: NSObject, TableViewControllerPresentationLogic {
@@ -28,14 +29,30 @@ class TableViewControllerPresenter: NSObject, TableViewControllerPresentationLog
     // MARK: Presentation Logic
     
     func tableViewChangesDone() {
-        viewController.tableViewChangesDone()
+        //viewController.tableViewChangesDone()
     }
 }
 
 extension TableViewControllerPresenter: TableViewControllerViewControllerOutput {
-    func addTask(_ task: String) {
+    func viewIsReady() {
+        
         tableView?.beginUpdates()
-        interactor?.tableViewChangeBlockAddTask(task)()
+        
+        guard let count = interactor?.prepareDataAndReturnCountOfInsertRows() else { return}
+        
+        var indexPaths: [IndexPath] = []
+        for row in 0 ..< count {
+            indexPaths.append(IndexPath(row: row, section: 0))
+        }
+        
+        tableView?.insertRows(at: indexPaths, with: .automatic)
+        
+        tableView?.endUpdates()
+    }
+    
+    func saveTask(withTitle title: String) {
+        tableView?.beginUpdates()
+        interactor?.tableViewChangeBlockAddTask(withTitle: title)()
         tableView?.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         tableView?.endUpdates()
     }
